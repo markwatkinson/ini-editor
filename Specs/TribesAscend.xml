@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ini>
+  <!-- Most (all) of this is taken from https://docs.google.com/spreadsheet/ccc?key=0AoLRo1M6-ypfdGtwVExZd2lHN3JuellwMTZndkJOZVE#gid=0 -->
+  
+  
+  <category name="SystemSettings">
+    <option name="StaticDecals" type="bool">
+      <validator type="preset" name="bool"/>
+      <description>Static sprites on the map that don't move: EX: Decorations, Existing bullet-holes in walls from the map creation, graffiti or writing.
+      </description>
+    </option>
+
+
+    <option name="DecalCullDistanceScale" type="float">
+      <min>0.1</min>
+      <max>1.0</max>
+      <description>Determines the distance in which Decals start disappearing from your view. Set lower to make them disappear sooner.</description>
+    </option>
+    
+  </category>
+</ini>
