@@ -51,6 +51,32 @@ namespace TAIniEditor
             e.Value = ini.FormatBool((bool)e.Value);
         }
 
+
+        /// <summary>
+        /// handles binding/formatting of the trackbars
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void Trackbar_Bind_Format(object sender, ConvertEventArgs e)
+        {
+            Binding b = (Binding)sender;
+            Control c = b.Control;
+            var data = (Dictionary<string, object>)c.Tag;
+            double multiplier = (double)(data["trackMultipler"]);
+            double value = System.Convert.ToDouble((string)e.Value);
+            e.Value = System.Convert.ToInt32(value * multiplier);
+        }
+        void Trackbar_Bind_Parse(object sender, ConvertEventArgs e)
+        {
+            Binding b = (Binding)sender;
+            Control c = b.Control;
+            var data = (Dictionary<string, object>)c.Tag;
+            double multiplier = (double)(data["trackMultipler"]);
+            double value = (int)e.Value;
+            e.Value = "" + System.Convert.ToDouble(value / multiplier);
+
+        }
+
         private void LoadIni(string path)
         {
             ini = new Ini(path);
@@ -59,6 +85,7 @@ namespace TAIniEditor
             // NOTE we're going to have to refactor this at some point to make
             // it possible to reuse control creation if the user adds options
             // via the UI.
+            // for now we'll just stick everything in here
 
             gridContainer.Controls.Clear();
             Label l;
@@ -82,7 +109,14 @@ namespace TAIniEditor
                 int row = 0;
                 foreach (Option o in c.Options)
                 {
-                    string min, max;
+                    bool isTrackBar = false;
+                    double min, max;
+                    double interval;
+                    bool hasMinMax = spec.MinMaxFor(o, out min, out max);
+                    bool hasInterval = spec.IntervalFor(o, out interval);
+                    double multiplier = 0;
+                    int minimum = 0, maximum = 0;
+
                     l = new Label();
                     l.AutoSize = true;
                     l.Text = o.Name;
@@ -101,6 +135,32 @@ namespace TAIniEditor
                         b.Parse += new ConvertEventHandler(Bool_Bind_Parse);
                         cbox.DataBindings.Add(b);
                     }
+                    else if (o.Type == OptionType.Float && hasInterval || o.Type == OptionType.Int && hasMinMax)
+                    {
+                        // sliders need some re-jigging to handle floats
+                        
+                        control = new TrackBar();
+                        TrackBar tBar = (TrackBar)(control);
+                        b = new Binding("Value", o, "Value", true, DataSourceUpdateMode.OnPropertyChanged);
+                        b.Format += new ConvertEventHandler(Trackbar_Bind_Format);
+                        b.Parse += new ConvertEventHandler(Trackbar_Bind_Parse);
+                        tBar.DataBindings.Add(b);
+                        if (o.Type == OptionType.Float)
+                        {
+                            // FIXME do something sensible with interval == 0
+                            multiplier = 1 / interval;
+                            minimum = System.Convert.ToInt32(min * multiplier);
+                            maximum = System.Convert.ToInt32(max * multiplier);
+                        }
+                        else
+                        {
+                            minimum = System.Convert.ToInt32(min);
+                            maximum = System.Convert.ToInt32(max);
+                        }
+                        tBar.Maximum = maximum;
+                        tBar.Minimum = minimum;
+                        isTrackBar = true;
+                    }
                     else
                     {
                         control = new TextBox();
@@ -110,11 +170,18 @@ namespace TAIniEditor
                     }
                     var data = new Dictionary<string, object>();
                     data["option"] = o;
+                    data["trackBar"] = isTrackBar;
+                    data["trackMin"] = minimum;
+                    data["trackMax"] = maximum;
+                    data["trackMultipler"] = multiplier;
                     control.Tag = data;
                     l.Tag = data;
                     control.MouseHover += Control_Focus;
                     control.Click += Control_Focus;
-                    control.Validating += Validate_Control;
+                    if (!isTrackBar)
+                    {
+                        control.Validating += Validate_Control;
+                    }
                     l.MouseHover += Control_Focus;
                     l.Click += Control_Focus;
                     

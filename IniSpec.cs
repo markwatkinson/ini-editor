@@ -73,6 +73,26 @@ namespace TAIniEditor
             return true;
         }
 
+        public bool IntervalFor(Option o, out double interval)
+        {
+            double x1, x2;
+            interval = 0;
+            if (!MinMaxFor(o, out x1, out x2)) { return false; }
+            string intervalS = (string)nav.Evaluate("string(" + QueryStringFor(o) + "/interval/text())");
+            if (intervalS.Trim() == String.Empty) { return false; }
+
+            try
+            {
+                interval = System.Convert.ToDouble(intervalS.Trim());
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+            return true;
+
+        }
+
 
         public bool ValidateFor(Option o, string value, out string message)
         {
@@ -85,7 +105,17 @@ namespace TAIniEditor
                 double min, max;
                 if (MinMaxFor(o, out min, out max))
                 {
-                    double dblVal = System.Convert.ToDouble(value);
+                    double dblVal;
+                    try
+                    {
+                         dblVal = System.Convert.ToDouble(value);
+                    }
+                    catch (Exception e)
+                    {
+                        message = String.Format("Unhandled exception");
+                        return false;
+                    }
+
                     if (dblVal >= min && dblVal <= max)
                     {
                         return true;
@@ -97,7 +127,6 @@ namespace TAIniEditor
                 }
             }
             return true;
-
         }
      
     }

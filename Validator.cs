@@ -2,9 +2,41 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace TAIniEditor
 {
+
+    public class Validation
+    {
+        public static bool IsBool(string value) 
+        {
+            string s = value.ToLower();
+            return s == "true" || s == "false";
+        }
+        public static bool IsInt(string value)
+        {
+            return Regex.IsMatch(value, "^[0-9]+$");
+        }
+        public static bool IsFloat(string value)
+        {
+            return Regex.IsMatch(value, @"^[0-9]*\.[0-9]+$");
+        }
+        public static bool IsString(string value)
+        {
+            //...
+            return true;
+        }
+
+        public static OptionType GuessType(string value)
+        {
+            if (IsBool(value)) return OptionType.Bool;
+            else if (IsFloat(value)) return OptionType.Float;
+            else if (IsInt(value)) return OptionType.Int;
+            else return OptionType.String;
+        }
+    }
+
     interface IValidator<T>
     {
         bool Test(T input, out string message);

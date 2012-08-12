@@ -76,23 +76,7 @@ namespace TAIniEditor
 
         private void GuessType()
         {
-            string lowerVal = Value.ToLower();
-            if (Regex.IsMatch(Value, "^[0-9]+$"))
-            {
-                Type = OptionType.Int;
-            }
-            else if (Regex.IsMatch(Value, @"^[0-9]*\.[0-9]+$"))
-            {
-                Type = OptionType.Float;
-            }
-            else if (lowerVal == "true" || lowerVal == "false")
-            {
-                Type = OptionType.Bool;
-            }
-            else
-            {
-                Type = OptionType.String;
-            }
+            Type = Validation.GuessType(Value);
         }
 
     }

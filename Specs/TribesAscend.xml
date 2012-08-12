@@ -11,9 +11,10 @@
     </option>
 
 
-    <option name="DecalCullDistanceScale" type="float">
+    <option name="DecalCullDistanceScale" type="float" range="true">
       <min>0.1</min>
       <max>1.0</max>
+      <interval>0.1</interval>
       <description>Determines the distance in which Decals start disappearing from your view. Set lower to make them disappear sooner.</description>
     </option>
     
