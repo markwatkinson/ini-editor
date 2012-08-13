@@ -17,6 +17,17 @@
       <interval>0.1</interval>
       <description>Determines the distance in which Decals start disappearing from your view. Set lower to make them disappear sooner.</description>
     </option>
-    
+  </category>
+
+
+  <category name="TribesGame.TrAudioSettings">
+
+    <option name="m_nVolumeMaster" type="int">
+      <min>0</min>
+      <max>100</max>
+      <description>
+        Sets the Master Volume for all in-gmae audio.
+      </description>
+    </option>
   </category>
 </ini>

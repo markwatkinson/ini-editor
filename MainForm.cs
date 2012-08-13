@@ -167,8 +167,8 @@ namespace TAIniEditor
                         NumericUpDown n = (NumericUpDown)control;
                         if (hasMinMax)
                         {
-                            n.Maximum = System.Convert.ToInt32(min);
-                            n.Minimum = System.Convert.ToInt32(max);
+                            n.Minimum = System.Convert.ToInt32(min);
+                            n.Maximum = System.Convert.ToInt32(max);
                         }
                         else
                         {
