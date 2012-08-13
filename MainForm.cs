@@ -66,6 +66,11 @@ namespace TAIniEditor
             double value = System.Convert.ToDouble((string)e.Value);
             e.Value = System.Convert.ToInt32(value * multiplier);
         }
+        /// <summary>
+        /// Parsing of trackbar values
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void Trackbar_Bind_Parse(object sender, ConvertEventArgs e)
         {
             Binding b = (Binding)sender;
@@ -74,8 +79,29 @@ namespace TAIniEditor
             double multiplier = (double)(data["trackMultipler"]);
             double value = (int)e.Value;
             e.Value = "" + System.Convert.ToDouble(value / multiplier);
-
         }
+
+        /// <summary>
+        /// Format bind for numeric controls
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void Numeric_Bind_Format(object sender, ConvertEventArgs e)
+        {
+            e.Value = System.Convert.ToDecimal((string)e.Value);
+        }
+        /// <summary>
+        /// Parse bind for numeric controls
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void Numeric_Bind_Parse(object sender, ConvertEventArgs e)
+        {
+            decimal val = (decimal)e.Value;
+            e.Value = val.ToString();
+        }
+
+
 
         private void LoadIni(string path)
         {
@@ -135,10 +161,29 @@ namespace TAIniEditor
                         b.Parse += new ConvertEventHandler(Bool_Bind_Parse);
                         cbox.DataBindings.Add(b);
                     }
-                    else if (o.Type == OptionType.Float && hasInterval || o.Type == OptionType.Int && hasMinMax)
+                    else if (o.Type == OptionType.Int)
+                    {
+                        control = new NumericUpDown();
+                        NumericUpDown n = (NumericUpDown)control;
+                        if (hasMinMax)
+                        {
+                            n.Maximum = System.Convert.ToInt32(min);
+                            n.Minimum = System.Convert.ToInt32(max);
+                        }
+                        else
+                        {
+                            n.Minimum = Int32.MinValue;
+                            n.Maximum = Int32.MaxValue;
+                        }
+                        b = new Binding("Value", o, "Value", true, DataSourceUpdateMode.OnPropertyChanged);
+                        b.Format += new ConvertEventHandler(Numeric_Bind_Format);
+                        b.Parse += new ConvertEventHandler(Numeric_Bind_Parse);
+                        n.DataBindings.Add(b);
+                    }
+                    else if (o.Type == OptionType.Float && hasInterval)
                     {
                         // sliders need some re-jigging to handle floats
-                        
+
                         control = new TrackBar();
                         TrackBar tBar = (TrackBar)(control);
                         b = new Binding("Value", o, "Value", true, DataSourceUpdateMode.OnPropertyChanged);
@@ -146,17 +191,10 @@ namespace TAIniEditor
                         b.Parse += new ConvertEventHandler(Trackbar_Bind_Parse);
                         tBar.DataBindings.Add(b);
                         if (o.Type == OptionType.Float)
-                        {
-                            // FIXME do something sensible with interval == 0
-                            multiplier = 1 / interval;
-                            minimum = System.Convert.ToInt32(min * multiplier);
-                            maximum = System.Convert.ToInt32(max * multiplier);
-                        }
-                        else
-                        {
-                            minimum = System.Convert.ToInt32(min);
-                            maximum = System.Convert.ToInt32(max);
-                        }
+                        // FIXME do something sensible with interval == 0
+                        multiplier = 1 / interval;
+                        minimum = System.Convert.ToInt32(min * multiplier);
+                        maximum = System.Convert.ToInt32(max * multiplier);
                         tBar.Maximum = maximum;
                         tBar.Minimum = minimum;
                         isTrackBar = true;
@@ -167,6 +205,7 @@ namespace TAIniEditor
                         ((TextBox)(control)).TextChanged += Control_Focus;
                         b = new Binding("text", o, "Value", true, DataSourceUpdateMode.OnPropertyChanged);
                         control.DataBindings.Add(b);
+                        control.Validating += Validate_Control;
                     }
                     var data = new Dictionary<string, object>();
                     data["option"] = o;
@@ -178,10 +217,7 @@ namespace TAIniEditor
                     l.Tag = data;
                     control.MouseHover += Control_Focus;
                     control.Click += Control_Focus;
-                    if (!isTrackBar)
-                    {
-                        control.Validating += Validate_Control;
-                    }
+                    
                     l.MouseHover += Control_Focus;
                     l.Click += Control_Focus;
                     
