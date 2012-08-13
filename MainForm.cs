@@ -255,7 +255,7 @@ namespace TAIniEditor
             data = (Dictionary<string, object>)control.Tag;
             Option o = (Option)data["option"];
             infoPanel.Text = o.Name;
-            infoLbl.Text = spec.DescriptionFor(o);
+            infoLbl.Text = spec.DescriptionFor(o).Trim();
 
             string typeText = "";
             switch(o.Type) {
