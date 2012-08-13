@@ -16,11 +16,11 @@ namespace TAIniEditor
         }
         public static bool IsInt(string value)
         {
-            return Regex.IsMatch(value, "^[0-9]+$");
+            return Regex.IsMatch(value, "^-?[0-9]+$");
         }
         public static bool IsFloat(string value)
         {
-            return Regex.IsMatch(value, @"^[0-9]*\.[0-9]+$");
+            return Regex.IsMatch(value, @"^-?[0-9]*\.[0-9]+$");
         }
         public static bool IsString(string value)
         {
